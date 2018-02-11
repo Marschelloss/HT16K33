@@ -1,18 +1,6 @@
 defmodule Ht16k33 do
   @moduledoc """
-  Documentation for Ht16k33.
+  This module provides a library to controll the Adafruit LED Driver
+  via Elixir.
   """
-
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> Ht16k33.hello
-      :world
-
-  """
-  def hello do
-    :world
-  end
 end
