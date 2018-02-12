@@ -86,7 +86,7 @@ defmodule HT16K33 do
 
   Example: `HT16K33.set_brightness(pid, 15)`
   """
-  def set_brightness(pid, brightness) when is_integer(brightness) && is_pid(pid) do
+  def set_brightness(pid, brightness) when is_integer(brightness) do
     # Only values between 0 and 15 are possible.
     if brightness < 0 or brightness > 15 do
       # TODO: Define Error "brightness value must be between 0 and 15"
