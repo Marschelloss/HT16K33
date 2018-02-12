@@ -66,11 +66,32 @@ defmodule HT16K33 do
         Bitwise.bor(@ht16k33_blink_cmd, @ht16k33_blink_displayon)
         |> Bitwise.bor(@ht16k33_blink_list[freq_key])
 
+      Logger.debug("Set display blink rate to #{freq_key}.")
       I2C.write(pid, <<data>>)
+
       {:ok}
     else
       # TODO: Define Error "freq was not found in blink_list"
       {:error}
+    end
+  end
+  
+  @doc """
+  Sets the brightness of the display. Values between 0 and 15 are
+  possible.
+
+  Example: `HT16K33.set_brightness(pid, 15)`
+  """
+  def set_brightness(pid, brightness) when is_integer(brightness) do
+    # Only values between 0 and 15 are possible.
+    if brightness < 0 or brightness > 15 do
+      # TODO: Define Error "brightness value must be between 0 and 15"
+      {:error}
+    else
+      Logger.debug("Set display brightness to #{brightness}.")
+      I2C.write(pid, <<Bitwise.bor(@ht16k33_cmd_brightness, brightness)>>)
+
+      {:ok}
     end
   end
   
