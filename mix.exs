@@ -1,4 +1,4 @@
-defmodule Ht16k33.MixProject do
+defmodule HT16K33.MixProject do
   use Mix.Project
 
   def project do
