@@ -1,4 +1,4 @@
-# Ht16k33
+# HT16K33
 
 **TODO: Add description**
 
