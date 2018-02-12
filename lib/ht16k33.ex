@@ -86,7 +86,7 @@ defmodule HT16K33 do
 
   Example: `HT16K33.set_brightness(pid, 15)`
   """
-  def set_brightness(pid, brightness) when is_integer(brightness) do
+  def set_brightness(pid, brightness) when is_integer(brightness) && is_pid(pid) do
     # Only values between 0 and 15 are possible.
     if brightness < 0 or brightness > 15 do
       # TODO: Define Error "brightness value must be between 0 and 15"
@@ -97,6 +97,21 @@ defmodule HT16K33 do
 
       {:ok}
     end
+  end
+  
+  @doc """
+  Clears all LEDs on the display.
+  """
+  def clear(pid) when is_pid(pid) do
+    # Range of every possible address is 0..16
+    Enum.map(0..16, fn(x) -> I2C.write(pid, <<x, 0x00>>) end)
+  end
+  
+  @doc """
+  Inverse the clear-effect: All lights on.
+  """
+  def fill(pid) when is_pid(pid) do
+    Enum.map(0..16, fn(x) -> I2C.write(pid, <<x, 0xFF>>) end)
   end
   
   @doc """
