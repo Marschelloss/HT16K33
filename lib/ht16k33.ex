@@ -36,7 +36,9 @@ defmodule HT16K33 do
         # TODO: Maybe check some kind of id to prove if a HT16K33 was found?
         Logger.debug("Connecting to HT16K33 over I2C on address " <>
           integer_to_hex_string(i2c_address) <> " with devname '#{i2c_devname}' succeded.")
-        # function_to_call
+        # TODO: Catch Error while running run_init. This is a good check if everything is set up.
+        run_init(pid)
+
         {:ok, pid}
       error -> error
     end
@@ -52,6 +54,8 @@ defmodule HT16K33 do
     I2C.write(pid, <<Bitwise.bor(@ht16k33_system_setup, @ht16k33_oscillator)>>)
     # Turn display on with no blinking.
     set_blink(pid, "blink_off")
+    # Set display brightness to max.
+    set_brightness(pid, 15)
   end
   
   @doc """
