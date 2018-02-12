@@ -2,6 +2,9 @@
 
 **TODO: Add description**
 
+Translated from the [Adafruit Python LED Backpack
+Library](https://github.com/adafruit/Adafruit_Python_LED_Backpack).
+
 ## Installation
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed
