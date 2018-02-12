@@ -30,12 +30,18 @@ defmodule HT16K33 do
     case I2C.start_link(i2c_devname, i2c_address) do
       {:ok, pid} ->
         # TODO: Maybe check some kind of id to prove if a HT16K33 was found?
-        Logger.debug("Connecting to HT16K33 over I2C on #{i2c_address} " +
-        "with devname '#{i2c_devname}' succeded.")
+        Logger.debug("Connecting to HT16K33 over I2C on address " <>
+          integer_to_hex_string(i2c_address) <> " with devname '#{i2c_devname}' succeded.")
         # function_to_call
         {:ok, pid}
       error -> error
     end
   end
+  
+  @doc """
+  Simple function which returns a integer in hex as string with "0x"-prefix
+  to provide clearer output in functions.
+  """
+  defp integer_to_hex_string(int), do: "0x" <> Integer.to_string(int, 16)
 
 end
