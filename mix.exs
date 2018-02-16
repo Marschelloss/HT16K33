@@ -25,7 +25,8 @@ defmodule HT16K33.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:elixir_ale, "~> 1.0"}
+      {:elixir_ale, "~> 1.0"},
+      {:ex_doc, "~> 0.16", only: :dev, runtime: false}
     ]
   end
   
