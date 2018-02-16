@@ -1,5 +1,7 @@
 defmodule HT16K33.SevenSegmentBig do
   alias ElixirALE.I2C
+  use GenServer
+  require Logger
 
   @moduledoc """
   Module to controll the 'big' 1.2"  Adafruit Seven Segment display
@@ -40,20 +42,109 @@ defmodule HT16K33.SevenSegmentBig do
     2 => 0x06,
     3 => 0x08
   }
+  
+  # Position of each given colon/dot
+  @pos_colon %{
+    0 => 0x0c,
+    1 => 0x03,
+    2 => 0x10
+  }
+  
+  # Possible colon/dot states
+  @status_colon [:on, :off]
+  
+  @doc """
+  Start and link the SevenSegmentBig GenServer.
 
-  @spec start_link(String.t, byte) :: {:ok, pid} | {:error, any}
+  `i2c_devname` and `i2c_address` can be defined. Else the default settings
+  will be used.
+
+  For more informatins about devname and the adress, take a look at the used 
+  module `ElixirALE.I2C` and it's documentation: https://hexdocs.pm/elixir_ale/ElixirALE.I2C.html
+  """
+  @spec start_link(String.t, byte)
   def start_link(i2c_devname \\ @default_i2c_devname, 
-    i2c_address \\ @default_i2c_address) when is_integer(i2c_address) do
+    i2c_address \\ @default_i2c_address) 
+  when is_integer(i2c_address)
+  when is_bitstring(i2c_devname) do
+    Logger.debug "Started big Seven Segment GenServer..."
+    GenServer.start_link __MODULE__, [i2c_devname, i2c_address], name: __MODULE__
+  end
+
+  @doc """
+  Starts the needed Main-Module HT16K33 GenServer, clears all LEDs and returs
+  a state including the pid, which will be used in other functions of this 
+  Sub-Module.
+  """
+  @spec init(String.t, byte) :: {:ok, %{:pid => pid}}
+  def init([i2c_devname, i2c_address]) do
     {_, pid} = HT16K33.start_link(i2c_devname, i2c_address)
-    
     HT16K33.clear(pid)
     
-    {:ok, pid}
+    {:ok, %{:pid => pid}}
   end
   
-  def set_number(pid, pos, val) do
-    # TODO: Write if-clauses to catch errors.
-    I2C.write(pid, <<@pos_segment[pos], @n_digit_values[val]>>)
+  def handle_cast({:set_digit, digit, pos}, state) do
+    I2C.write(state[:pid], <<@pos_segment[pos], @n_digit_values[digit]>>)
+    
+    {:noreply, state}
+  end
+  
+  def handle_cast({:set_colon, pos, status}, state) do
+    if status == :off do
+      I2C.write(state[pid], <<0x04, 0x00>>)
+      
+      {:noreply, state}
+    end
+    I2C.write(state[:pid], <<0x04, @pos_colon[pos]>>)
+    
+    {:noreply, state}
+  end
+  
+  def handle_cast({:set_raw, register, data}, state) do
+    I2C.write(state[:pid], <<register, data>>)
+
+    {:noreply, state}
+  end
+  
+  def handle_info(msg, state) do
+    Logger.error "Unknown message: #{msg}"
+
+    {:noreply, state}
+  end
+  
+  @doc """
+  Sets a predefined digit at the given position. 
+
+  `digit` can be one of the following values provided as string:
+  -, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, A, B, C, D, E, F, L or a
+  'space'-character like " " to clear the position.
+
+  `pos` starts at 0 from left to right till 3.
+  """
+  @spec set_digit(n_digit_values, pos_segment) :: {:ok}
+  def set_digit(digit, pos) do
+    GenServer.cast __MODULE__, {:set_digit, digit, pos}
+  end
+  
+  @doc """
+  Turns the colon(s) or dot on/off.
+
+  `pos` is the position of the colon/dot from 0 on the left
+  to 2 on the right.
+  `status` can be either `:on` or `:off`.
+  """
+  @spec set_colon(pos_segment, status_colon) :: {:ok}
+  def set_colon(pos, status) do
+    GenServer.cast __MODULE__, {:set_colon, pos, status}
+  end
+ 
+  @doc """
+  Used to write a non-predefined data to the needed register.
+  """
+  @spec set_raw(byte, byte) :: {:ok}
+  def set_raw(register, data) do
+    GenServer.cast __MODULE__, {:set_raw, register, data}
   end
   
 end
