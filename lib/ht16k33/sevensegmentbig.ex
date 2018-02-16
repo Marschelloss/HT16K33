@@ -53,6 +53,11 @@ defmodule HT16K33.SevenSegmentBig do
   # Possible colon/dot states
   @status_colon [:on, :off]
   
+  # To check if the given key in some function like `set_digit`
+  # are valid, a new module attribute with valid keys get's
+  # generated.
+  @valid_n_digit_keys Map.keys(@n_digit_values)
+  
   @doc """
   Start and link the SevenSegmentBig GenServer.
 
@@ -62,7 +67,7 @@ defmodule HT16K33.SevenSegmentBig do
   For more informatins about devname and the adress, take a look at the used 
   module `ElixirALE.I2C` and it's documentation: https://hexdocs.pm/elixir_ale/ElixirALE.I2C.html
   """
-  @spec start_link(String.t, byte)
+  @spec start_link(String.t, byte) :: {:ok, pid}
   def start_link(i2c_devname \\ @default_i2c_devname, 
     i2c_address \\ @default_i2c_address) 
   when is_integer(i2c_address)
@@ -76,7 +81,7 @@ defmodule HT16K33.SevenSegmentBig do
   a state including the pid, which will be used in other functions of this 
   Sub-Module.
   """
-  @spec init(String.t, byte) :: {:ok, %{:pid => pid}}
+  @spec init(list) :: {:ok, %{:pid => pid}}
   def init([i2c_devname, i2c_address]) do
     {_, pid} = HT16K33.start_link(i2c_devname, i2c_address)
     HT16K33.clear(pid)
@@ -122,8 +127,8 @@ defmodule HT16K33.SevenSegmentBig do
 
   `pos` starts at 0 from left to right till 3.
   """
-  @spec set_digit(n_digit_values, pos_segment) :: {:ok}
-  def set_digit(digit, pos) do
+  @spec set_digit(String.t, 0..3) :: {:ok}
+  def set_digit(digit, pos) when digit in @valid_n_digit_keys do
     GenServer.cast __MODULE__, {:set_digit, digit, pos}
   end
   
@@ -134,8 +139,8 @@ defmodule HT16K33.SevenSegmentBig do
   to 2 on the right.
   `status` can be either `:on` or `:off`.
   """
-  @spec set_colon(pos_segment, status_colon) :: {:ok}
-  def set_colon(pos, status) do
+  @spec set_colon(0..3, atom) :: {:ok}
+  def set_colon(pos, status) when status in @status_colon do
     GenServer.cast __MODULE__, {:set_colon, pos, status}
   end
  
