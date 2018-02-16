@@ -70,8 +70,7 @@ defmodule HT16K33.SevenSegmentBig do
   @spec start_link(String.t, byte) :: {:ok, pid}
   def start_link(i2c_devname \\ @default_i2c_devname, 
     i2c_address \\ @default_i2c_address) 
-  when is_integer(i2c_address)
-  when is_bitstring(i2c_devname) do
+  when is_integer(i2c_address) and is_bitstring(i2c_devname) do
     Logger.debug "Started big Seven Segment GenServer..."
     GenServer.start_link __MODULE__, [i2c_devname, i2c_address], name: __MODULE__
   end
@@ -129,9 +128,7 @@ defmodule HT16K33.SevenSegmentBig do
   `pos` starts at 0 from left to right till 3.
   """
   @spec set_digit(String.t, 0..3) :: {:ok}
-  def set_digit(digit, pos)
-  when is_integer(pos) and pos >= 0 and pos <= 3
-  when digit in @valid_n_digit_keys do
+  def set_digit(digit, pos) when is_integer(pos) and pos >= 0 and pos <= 3 and digit in @valid_n_digit_keys do
     GenServer.cast __MODULE__, {:set_digit, digit, pos}
   end
   
@@ -144,8 +141,7 @@ defmodule HT16K33.SevenSegmentBig do
   """
   @spec set_colon(0..2, atom) :: {:ok}
   def set_colon(pos, status)
-  when is_integer(pos) and pos >= 0 and pos <= 2
-  when status in @status_colon do
+  when is_integer(pos) and pos >= 0 and pos <= 2 and status in @status_colon do
     GenServer.cast __MODULE__, {:set_colon, pos, status}
   end
  
