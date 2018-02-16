@@ -92,7 +92,7 @@ defmodule HT16K33.SevenSegmentBig do
   
   def handle_cast({:set_colon, pos, status}, state) do
     if status == :off do
-      I2C.write(state[pid], <<0x04, 0x00>>)
+      I2C.write(state[:pid], <<0x04, 0x00>>)
       
       {:noreply, state}
     end
