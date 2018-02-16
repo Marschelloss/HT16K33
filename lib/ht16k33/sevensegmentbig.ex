@@ -100,10 +100,11 @@ defmodule HT16K33.SevenSegmentBig do
       I2C.write(state[:pid], <<0x04, 0x00>>)
       
       {:noreply, state}
+    else
+      I2C.write(state[:pid], <<0x04, @pos_colon[pos]>>)
+      
+      {:noreply, state}
     end
-    I2C.write(state[:pid], <<0x04, @pos_colon[pos]>>)
-    
-    {:noreply, state}
   end
   
   def handle_cast({:set_raw, register, data}, state) do
@@ -128,7 +129,9 @@ defmodule HT16K33.SevenSegmentBig do
   `pos` starts at 0 from left to right till 3.
   """
   @spec set_digit(String.t, 0..3) :: {:ok}
-  def set_digit(digit, pos) when digit in @valid_n_digit_keys do
+  def set_digit(digit, pos)
+  when is_integer(pos) and pos >= 0 and pos <= 3
+  when digit in @valid_n_digit_keys do
     GenServer.cast __MODULE__, {:set_digit, digit, pos}
   end
   
@@ -139,8 +142,10 @@ defmodule HT16K33.SevenSegmentBig do
   to 2 on the right.
   `status` can be either `:on` or `:off`.
   """
-  @spec set_colon(0..3, atom) :: {:ok}
-  def set_colon(pos, status) when status in @status_colon do
+  @spec set_colon(0..2, atom) :: {:ok}
+  def set_colon(pos, status)
+  when is_integer(pos) and pos >= 0 and pos <= 2
+  when status in @status_colon do
     GenServer.cast __MODULE__, {:set_colon, pos, status}
   end
  
