@@ -10,7 +10,7 @@ defmodule HT16K33.MixProject do
       description: description(),
       package: package(),
       name: "HT16K33",
-      source_url: "https://github.com/DonHansDampf/HT16K33"
+      source_url: "https://github.com/DonHansDampf/HT16K33",
       deps: deps()
     ]
   end
